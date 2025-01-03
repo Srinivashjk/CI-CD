@@ -3,7 +3,7 @@ name: CI Workflow
 on:
   push:
     branches:
-      - main  # You can specify the branch you want to trigger the workflow on
+      - main  # Trigger workflow on push to main branch
 
 jobs:
   build:
@@ -21,8 +21,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
+
       - name: Build Angular project
-        run: ng build --prod
+        run: ng build --production
 
       - name: Run tests
         run: ng test
