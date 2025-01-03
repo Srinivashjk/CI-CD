@@ -37,7 +37,7 @@ jobs:
           EC2_KEY: ${{ secrets.EC2_KEY }}
           TARGET_DIR: /var/www/html
         run: |
-          echo $`mani`
+          echo "mani"
           # Create a temporary directory for the build files
           tar -czf dist.tar.gz -C dist/unitsource .
           
