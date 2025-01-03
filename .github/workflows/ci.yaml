@@ -21,11 +21,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install Angular CLI
-        run: npm install -g @angular/cli
+      - name: Enable OpenSSL Legacy Mode
+        run: export NODE_OPTIONS=--openssl-legacy-provider
 
       - name: Build Angular project
-        run: ng build --prod  # Corrected flag
+        run: ng build --prod
 
       - name: Run tests
         run: ng test
