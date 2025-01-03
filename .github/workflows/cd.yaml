@@ -49,9 +49,27 @@ jobs:
           
           # Connect to EC2, extract files, and set permissions (with disabled host key verification)
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+            # Check if sudo is available, install if missing
+            if ! command -v sudo &> /dev/null
+            then
+                echo "sudo not found, installing it..."
+                sudo apt-get update
+                sudo apt-get install sudo
+            fi
+
+            # Ensure the target directory exists
+            sudo mkdir -p $TARGET_DIR
+
+            # Clean up the target directory (remove previous build)
             sudo rm -rf $TARGET_DIR/*
+
+            # Extract new build files
             sudo tar -xzf /tmp/dist.tar.gz -C $TARGET_DIR
-            sudo chown -R nginx:nginx $TARGET_DIR
+
+            # Set permissions (ensure the right user is in charge)
+            sudo chown -R $EC2_USER:$EC2_USER $TARGET_DIR
+
+            # Restart the web server (Nginx)
             sudo systemctl restart nginx
           EOF
           
