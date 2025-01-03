@@ -32,12 +32,14 @@ jobs:
       # Deploy to EC2
       - name: Deploy to EC2
         env:
-          EC2_HOST: "Test HOST"
+          EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_KEY: ${{ secrets.EC2_KEY }}
           TARGET_DIR: /var/www/html
         run: |
           echo $EC2_HOST
+          echo $EC2_USER
+          echo $EC2_KEY
           # Create a temporary directory for the build files
           tar -czf dist.tar.gz -C dist/unitsource .
           
