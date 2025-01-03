@@ -40,20 +40,20 @@ jobs:
           # Create a temporary file for the private key
           echo "$EC2_KEY" > private_key.pem
           chmod 600 private_key.pem  # Set proper permissions for the private key
-
+          
           # Create a temporary directory for the build files
           tar -czf dist.tar.gz -C dist/unitsource .
-
-          # Copy build files to EC2
-          scp -i private_key.pem dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
-
-          # Connect to EC2, extract files, and set permissions
-          ssh -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+          
+          # Copy build files to EC2 (with disabled host key verification)
+          scp -o StrictHostKeyChecking=no -i private_key.pem dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
+          
+          # Connect to EC2, extract files, and set permissions (with disabled host key verification)
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             sudo rm -rf $TARGET_DIR/*
             sudo tar -xzf /tmp/dist.tar.gz -C $TARGET_DIR
             sudo chown -R nginx:nginx $TARGET_DIR
             sudo systemctl restart nginx
           EOF
-
+          
           # Clean up by removing the private key file
           rm -f private_key.pem
