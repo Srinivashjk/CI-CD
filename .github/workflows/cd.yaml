@@ -1,4 +1,4 @@
-name: Continuous Deployment
+# name: Continuous Deployment
 
 on:
   push:
@@ -32,22 +32,19 @@ jobs:
       # Deploy to EC2
       - name: Deploy to EC2
         env:
-          EC2_HOST: "ec2-13-60-91-157.eu-north-1.compute.amazonaws.com"
-          EC2_USER: "ubuntu"
-          EC2_KEY: ".github/workflows/FirstKeyPair.pem"
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_KEY: ${{ secrets.EC2_KEY }}
           TARGET_DIR: /var/www/html
         run: |
-          echo $EC2_HOST
-          echo $EC2_USER
-          echo $EC2_KEY
           # Create a temporary directory for the build files
           tar -czf dist.tar.gz -C dist/unitsource .
           
           # Copy build files to EC2
-          scp -i "FirstKeyPair.pem" dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
+          scp -i $EC2_KEY dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
           
           # Connect to EC2, extract files, and set permissions
-          ssh -i "FirstKeyPair.pem" $EC2_USER@$EC2_HOST << 'EOF'
+          ssh -i $EC2_KEY $EC2_USER@$EC2_HOST << 'EOF'
             sudo rm -rf $TARGET_DIR/*
             sudo tar -xzf /tmp/dist.tar.gz -C $TARGET_DIR
             sudo chown -R nginx:nginx $TARGET_DIR
