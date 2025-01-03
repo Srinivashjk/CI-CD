@@ -29,7 +29,27 @@ jobs:
       - name: Build Angular App
         run: npm run build --prod
 
-      # Deploy to EC2
+      # # Deploy to EC2
+      # - name: Deploy to EC2
+      #   env:
+      #     EC2_HOST: ${{ secrets.EC2_HOST }}
+      #     EC2_USER: ${{ secrets.EC2_USER }}
+      #     EC2_KEY: ${{ secrets.EC2_KEY }}
+      #     TARGET_DIR: /var/www/html/
+      #   run: |
+      #     # Create a temporary directory for the build files
+      #     tar -czf dist.tar.gz -C dist/unitsource .
+          
+      #     # Copy build files to EC2
+      #     scp -i $EC2_KEY dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
+          
+      #     # Connect to EC2, extract files, and set permissions
+      #     ssh -i $EC2_KEY $EC2_USER@$EC2_HOST << 'EOF'
+      #       sudo rm -rf $TARGET_DIR/*
+      #       sudo tar -xzf /tmp/dist.tar.gz -C $TARGET_DIR
+      #       sudo chown -R nginx:nginx $TARGET_DIR
+      #       sudo systemctl restart nginx
+      #     EOF
       - name: Deploy to EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -37,16 +57,26 @@ jobs:
           EC2_KEY: ${{ secrets.EC2_KEY }}
           TARGET_DIR: /var/www/html
         run: |
-          # Create a temporary directory for the build files
+          # Save the EC2 private key to a temporary file
+          echo "$EC2_KEY" > private_key.pem
+          chmod 600 private_key.pem  # Set proper permissions for the private key
+
+          # Verify the build directory exists and list files
+          ls -alh dist/unitsource
+
+          # Create a tarball of the build files
           tar -czf dist.tar.gz -C dist/unitsource .
-          
-          # Copy build files to EC2
-          scp -i $EC2_KEY dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
-          
+
+          # Copy build files to EC2 (with disabled host key verification)
+          scp -i private_key.pem dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
+
           # Connect to EC2, extract files, and set permissions
-          ssh -i $EC2_KEY $EC2_USER@$EC2_HOST << 'EOF'
+          ssh -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             sudo rm -rf $TARGET_DIR/*
             sudo tar -xzf /tmp/dist.tar.gz -C $TARGET_DIR
             sudo chown -R nginx:nginx $TARGET_DIR
             sudo systemctl restart nginx
           EOF
+
+          # Clean up by removing the private key file
+          rm -f private_key.pem
