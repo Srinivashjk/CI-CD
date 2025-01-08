@@ -68,10 +68,10 @@ jobs:
           tar -czf dist.tar.gz -C dist/unitsource .
 
           # Copy build files to EC2 (with disabled host key verification)
-          scp -i private_key.pem dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
+          scp -o StrictHostKeyChecking=no -i private_key.pem dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
 
           # Connect to EC2, extract files, and set permissions
-          ssh -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             sudo rm -rf $TARGET_DIR/*
             sudo tar -xzf /tmp/dist.tar.gz -C $TARGET_DIR
             sudo chown -R nginx:nginx $TARGET_DIR
@@ -80,3 +80,4 @@ jobs:
 
           # Clean up by removing the private key file
           rm -f private_key.pem
+
