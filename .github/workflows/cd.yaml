@@ -48,7 +48,7 @@ jobs:
       #       sudo rm -rf $TARGET_DIR/*
       #       sudo tar -xzf /tmp/dist.tar.gz -C $TARGET_DIR
       #       sudo chown -R nginx:nginx $TARGET_DIR
-      #       sudo systemctl restart nginx
+      #       sudo systemctl restart nginx 
       #     EOF
       - name: Deploy to EC2
         env:
