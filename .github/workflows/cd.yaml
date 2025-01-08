@@ -105,9 +105,9 @@ jobs:
       - name: Deploy to EC2
         run: |
           echo "Deploying to EC2..."
-          ssh -o StrictHostKeyChecking=no ec2-user@<EC2_INSTANCE_IP> << 'EOF'
+          ssh -o StrictHostKeyChecking=no ubuntu@<EC2_INSTANCE_IP> << 'EOF'
           # Commands to deploy the application on the EC2 instance
-          cd /path/to/your/application
+          cd /var/www/html
           git pull origin main
           npm install
           npm run build
