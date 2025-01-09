@@ -40,8 +40,8 @@ jobs:
           # Create a temporary directory for the build files
           tar -czf dist.tar.gz -C dist/unitsource .
           
-          # # Copy build files to EC2
-          # scp -i $EC2_KEY dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
+          # Copy build files to EC2
+          scp -i $EC2_KEY dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
           
           # # Connect to EC2, extract files, and set permissions
           # ssh -i $EC2_KEY $EC2_USER@$EC2_HOST << 'EOF'
