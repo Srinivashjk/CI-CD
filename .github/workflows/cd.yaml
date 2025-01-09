@@ -42,7 +42,7 @@ jobs:
 
           echo "${{ secrets.EC2_KEY }}" > ubuntu1.pem
           chmod 600 ubuntu1.pem
-          ssh -i ubuntu1.pem ubuntu@i-023ce91d97e70535b
+          ssh -i ubuntu1.pem ubuntu@51.20.89.16
           
           # # Copy build files to EC2
           # scp -i $EC2_KEY dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
