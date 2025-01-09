@@ -37,20 +37,9 @@ jobs:
           EC2_KEY: ${{ secrets.EC2_KEY }}
           TARGET_DIR: /var/www/html
         run: |
-          # Create a temporary directory for the build files
           tar -czf dist.tar.gz -C dist/unitsource .
 
           echo "${{ secrets.EC2_KEY }}" > ubuntu1.pem
           chmod 600 ubuntu1.pem
           ssh -i ubuntu1.pem ubuntu@51.20.89.16
           
-          # # Copy build files to EC2
-          # scp -i $EC2_KEY dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
-          
-          # # Connect to EC2, extract files, and set permissions
-          # ssh -i $EC2_KEY $EC2_USER@$EC2_HOST << 'EOF'
-          #   sudo rm -rf $TARGET_DIR/*
-          #   sudo tar -xzf /tmp/dist.tar.gz -C $TARGET_DIR
-          #   sudo chown -R nginx:nginx $TARGET_DIR
-          #   sudo systemctl restart nginx
-          # EOF
