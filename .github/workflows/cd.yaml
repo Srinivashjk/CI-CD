@@ -37,9 +37,30 @@ jobs:
           EC2_KEY: ${{ secrets.EC2_KEY }}
           TARGET_DIR: /var/www/html
         run: |
-          tar -czf dist.tar.gz -C dist/unitsource .
+          # Create a tarball of the Angular build
+          tar -czf dist.tar.gz -C dist .
 
-          echo "${{ secrets.EC2_KEY }}" > ubuntu1.pem
-          chmod 600 ubuntu1.pem
-          ssh -i ubuntu1.pem ubuntu@51.20.89.16
-          
+          # Save the private key to a file
+          echo "${{ secrets.EC2_KEY }}" > ec2-key.pem
+          chmod 600 ec2-key.pem
+
+          # Add the EC2 host to known_hosts to prevent host key verification issues
+          ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+
+          # Copy the build files to the EC2 instance
+          scp -i ec2-key.pem -o StrictHostKeyChecking=no dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
+
+          # SSH into the EC2 instance and deploy the application
+          ssh -i ec2-key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'EOF'
+            # Remove existing files in the target directory
+            sudo rm -rf $TARGET_DIR/*
+
+            # Extract the new build files into the target directory
+            sudo tar -xzf /tmp/dist.tar.gz -C $TARGET_DIR
+
+            # Set the correct ownership for the files
+            sudo chown -R www-data:www-data $TARGET_DIR
+
+            # Restart the web server to apply changes
+            sudo systemctl restart nginx
+          EOF
