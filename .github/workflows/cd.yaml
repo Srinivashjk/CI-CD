@@ -37,30 +37,15 @@ jobs:
           EC2_KEY: ${{ secrets.EC2_KEY }}
           TARGET_DIR: /var/www/html
         run: |
-          # Create a tarball of the Angular build
-          tar -czf dist.tar.gz -C dist .
-
           # Save the private key to a file
-          echo "${{ secrets.EC2_KEY }}" > ec2-key.pem
+          echo "$EC2_KEY" > ec2-key.pem
           chmod 600 ec2-key.pem
 
-          # Add the EC2 host to known_hosts to prevent host key verification issues
-          ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
-
           # Copy the build files to the EC2 instance
-          scp -i ec2-key.pem -o StrictHostKeyChecking=no dist.tar.gz $EC2_USER@$EC2_HOST:/tmp/
+          scp -i ec2-key.pem -o StrictHostKeyChecking=no -r dist/* $EC2_USER@$EC2_HOST:$TARGET_DIR/
 
-          # SSH into the EC2 instance and deploy the application
-          ssh -i ec2-key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'EOF'
-            # Remove existing files in the target directory
-            sudo rm -rf $TARGET_DIR/*
-
-            # Extract the new build files into the target directory
-            sudo tar -xzf /tmp/dist.tar.gz -C $TARGET_DIR
-
-            # Set the correct ownership for the files
+          # SSH into the EC2 instance to set permissions and restart the web server
+          ssh -i ec2-key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "
             sudo chown -R www-data:www-data $TARGET_DIR
-
-            # Restart the web server to apply changes
             sudo systemctl restart nginx
-          EOF
+          "
