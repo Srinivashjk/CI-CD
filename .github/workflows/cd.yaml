@@ -41,7 +41,10 @@ jobs:
           echo "$EC2_KEY" > ec2-key.pem
           chmod 600 ec2-key.pem
 
-          # Copy the build files to a temporary directory on the EC2 instance
+          # Create the /tmp/dist directory on the EC2 instance
+          ssh -i ec2-key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "mkdir -p /tmp/dist"
+
+          # Copy the build files to the temporary directory on the EC2 instance
           scp -i ec2-key.pem -o StrictHostKeyChecking=no -r dist/* $EC2_USER@$EC2_HOST:/tmp/dist/
 
           # SSH into the EC2 instance to move files and set permissions
