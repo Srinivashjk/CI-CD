@@ -24,5 +24,5 @@ jobs:
       - name: Build Angular project
         run: npx ng build --prod  # Use npx to run Angular CLI locally
 
-      # - name: Run tests
-      #   run: npx ng test  # Use npx for tests as well
+      - name: Run tests
+        run: npx ng test  # Use npx for tests as well
